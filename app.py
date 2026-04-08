@@ -1,3 +1,16 @@
+import socket
+
+def force_ipv4():
+    orig_getaddrinfo = socket.getaddrinfo
+
+    def new_getaddrinfo(*args, **kwargs):
+        return [res for res in orig_getaddrinfo(*args, **kwargs) if res[0] == socket.AF_INET]
+
+    socket.getaddrinfo = new_getaddrinfo
+
+force_ipv4()
+
+
 from flask import Flask, render_template, request, redirect, url_for, Response
 from models import db, WorkoutSession, Exercise, ExerciseLog, SetLog
 
@@ -9,7 +22,6 @@ from services.analytics import (
 )
 
 app = Flask(__name__)
-import os
 
 import os
 
@@ -21,10 +33,17 @@ if DATABASE_URL:
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL or 'sqlite:///gym.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "pool_pre_ping": True,
+}
+
 db.init_app(app)
 
-with app.app_context():
-    db.create_all()
+try:
+    with app.app_context():
+        db.create_all()
+except Exception as e:
+    print("DB INIT ERROR:", e)
 
 # -------------------------
 # STEP 1: ADD WORKOUT
