@@ -41,7 +41,9 @@ db.init_app(app)
 
 try:
     with app.app_context():
+        print("CREATING TABLES...")
         db.create_all()
+        print("TABLES CREATED")
 except Exception as e:
     print("DB INIT ERROR:", e)
 
