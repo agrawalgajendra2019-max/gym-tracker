@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Sets</title>
+
+    <!-- 🔷 MOBILE SUPPORT -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f5f7fb;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .card {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        .set-row {
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 45%;
+            padding: 8px;
+            margin: 5px 5px 5px 0;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .add-btn {
+            background: #4CAF50;
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .save-btn {
+            background: #007bff;
+            color: white;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .remove-btn {
+            background: red;
+            color: white;
+        }
+    </style>
+
+    <script>
+        let sets = [];
+
+        function saveInputs() {
+            const rows = document.querySelectorAll("#sets-container .set-row");
+
+            rows.forEach((row, index) => {
+                const weight = row.querySelector(".weight").value;
+                const reps = row.querySelector(".reps").value;
+
+                if (sets[index]) {
+                    sets[index].weight = weight;
+                    sets[index].reps = reps;
+                }
+            });
+        }
+
+        function renderSets() {
+            const container = document.getElementById("sets-container");
+            container.innerHTML = "";
+
+            sets.forEach((set, index) => {
+                const i = index + 1;
+
+                const row = document.createElement("div");
+                row.className = "set-row";
+
+                row.innerHTML = `
+                    <label><strong>Set ${i}</strong></label><br>
+
+                    <input class="weight" type="number" step="0.1"
+                        name="weight_${i}"
+                        value="${set.weight}"
+                        placeholder="Weight"
+                        ${index === 0 ? "autofocus" : ""} required>
+
+                    <input class="reps" type="number"
+                        name="reps_${i}"
+                        value="${set.reps}"
+                        placeholder="Reps"
+                        required>
+
+                    <button type="button" class="remove-btn" onclick="removeSet(${index})">❌</button>
+                `;
+
+                container.appendChild(row);
+            });
+
+            document.getElementById("sets").value = sets.length;
+        }
+
+        function addSet() {
+            saveInputs();
+            sets.push({ weight: "", reps: "" });
+            renderSets();
+        }
+
+        function removeSet(index) {
+            saveInputs();
+            sets.splice(index, 1);
+            renderSets();
+        }
+
+        window.onload = function () {
+            addSet(); // start with 1 set
+        };
+    </script>
+</head>
+
+<body>
+
+<div class="card">
+
+    <h2>Add Sets</h2>
+
+    <form method="POST">
+
+        <input type="hidden" id="sets" name="sets">
+
+        <div id="sets-container"></div>
+
+        <button type="button" class="add-btn" onclick="addSet()">➕ Add Set</button>
+
+        <button type="submit" class="save-btn">💾 Save Workout</button>
+
+    </form>
+
+</div>
+
+</body>
+</html>

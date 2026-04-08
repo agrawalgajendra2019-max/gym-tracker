@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="card">
+
+    <h2>Add Exercise ({{ muscle }})</h2>
+
+    <form method="POST">
+
+        <!-- 🔷 EXISTING EXERCISE -->
+        <div class="form-group">
+            <label>Select Existing Exercise</label>
+            <select name="existing_exercise">
+                <option value="">-- Choose --</option>
+                {% for ex in exercises %}
+                    <option value="{{ ex.name }}">{{ ex.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- 🔷 NEW EXERCISE -->
+        <div class="form-group">
+            <label>Or Add New Exercise</label>
+            <input type="text" name="new_exercise" placeholder="e.g. incline bench">
+        </div>
+
+        <button type="submit" class="btn">Add Exercise</button>
+
+    </form>
+
+</div>
+
+<!-- 🔷 EXISTING EXERCISES LIST -->
+<div class="card">
+
+    <h3>Exercises Added</h3>
+
+    <ul>
+        {% for log in logs %}
+            <li>{{ log.exercise.name }}</li>
+        {% endfor %}
+    </ul>
+
+</div>
+
+{% endblock %}

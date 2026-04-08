@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="card">
+
+    <h2>Add Workout</h2>
+
+    {% if suggested_muscle %}
+        <p><strong>Suggested Next Muscle:</strong> {{ suggested_muscle }}</p>
+    {% endif %}
+
+    <form method="POST">
+
+        <div class="form-group">
+            <label>Date</label>
+            <input type="date" name="date" required>
+        </div>
+
+        <div class="form-group">
+            <label>Muscle Group</label>
+            <input type="text" name="muscle" placeholder="e.g. chest, back" required>
+        </div>
+
+        <button type="submit" class="btn">Start Workout</button>
+
+    </form>
+
+</div>
+
+{% endblock %}

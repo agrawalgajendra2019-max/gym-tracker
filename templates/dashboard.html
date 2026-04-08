@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+
+    <!-- 🔷 TITLE -->
+    <div class="card">
+        <h2>Workout Dashboard</h2>
+    </div>
+
+    <!-- 🔷 FILTERS -->
+    <div class="card">
+        <h3>Filters</h3>
+
+        <form method="GET" class="filters">
+
+            <input type="text" name="muscle" placeholder="Muscle"
+                   value="{{ request.args.get('muscle', '') }}">
+
+            <input type="text" name="exercise" placeholder="Exercise"
+                   value="{{ request.args.get('exercise', '') }}">
+
+            <input type="date" name="date"
+                   value="{{ request.args.get('date', '') }}">
+
+            <button type="submit">Apply</button>
+
+            <a href="/dashboard">
+                <button type="button">Reset</button>
+            </a>
+
+        </form>
+    </div>
+
+    <!-- 🔷 SUMMARY -->
+    <div class="card">
+        <h3>Summary</h3>
+
+        <p><strong>Total Volume:</strong> {{ total_volume }} kg</p>
+        <p><strong>Total Sets:</strong> {{ total_sets }}</p>
+    </div>
+
+    <!-- 🔷 EXPORT -->
+    <div class="card">
+        <a href="/export_csv">
+            <button style="background:#007bff; color:white; padding:10px 15px; border:none; border-radius:6px;">
+                ⬇ Export CSV
+            </button>
+        </a>
+    </div>
+
+    <!-- 🔷 TABLE -->
+    <div class="card">
+        <h3>Workout Logs</h3>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Muscle</th>
+                    <th>Exercise</th>
+                    <th>Weight (kg)</th>
+                    <th>Reps</th>
+                    <th>Improvement</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% if logs %}
+
+                    {% for item in logs %}
+
+                        {% set log = item[0] %}
+                        {% set pr = item[1] %}
+                        {% set improvement = item[2] %}
+
+                        <tr class="{% if pr %}pr{% endif %}">
+
+                            <td>{{ log.exercise_log.session.date }}</td>
+                            <td>{{ log.exercise_log.session.muscle }}</td>
+                            <td>{{ log.exercise_log.exercise.name }}</td>
+                            <td>{{ log.weight }}</td>
+                            <td>{{ log.reps }}</td>
+
+                            <td>
+                                {% if improvement is not none %}
+                                    {% if improvement > 0 %}
+                                        <span style="color:green;">+{{ improvement }}%</span>
+                                    {% elif improvement < 0 %}
+                                        <span style="color:red;">{{ improvement }}%</span>
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <tr>
+                        <td colspan="6" style="text-align:center;">
+                            No data found
+                        </td>
+                    </tr>
+
+                {% endif %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

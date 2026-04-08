@@ -1,0 +1,148 @@
+/* 🔷 GLOBAL */
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f5f7fb;
+    margin: 0;
+    color: #333;
+}
+
+/* 🔷 DARK MODE */
+body.dark {
+    background: #121212;
+    color: #eee;
+}
+
+/* 🔷 NAVBAR */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 30px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.navbar a {
+    margin-left: 15px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+}
+
+.navbar button {
+    margin-left: 15px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+/* 🔷 CONTAINER */
+.container {
+    max-width: 1000px;
+    margin: 30px auto;
+}
+
+/* 🔷 CARD */
+.card {
+    background: #ffffff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* 🔷 FILTERS */
+.filters input {
+    padding: 8px;
+    margin-right: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.filters button {
+    padding: 8px 12px;
+    border: none;
+    background: #4CAF50;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* 🔷 TABLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background: #f1f3f6;
+    padding: 10px;
+    text-align: left;
+}
+
+td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+/* 🔥 PR HIGHLIGHT */
+.pr {
+    background: #e6f7ec;
+    font-weight: 600;
+}
+
+/* 🔷 BUTTON */
+button {
+    cursor: pointer;
+}
+
+/* 🔷 DARK MODE OVERRIDES */
+body.dark .card {
+    background: #1e1e1e;
+}
+
+body.dark .navbar {
+    background: #1e1e1e;
+}
+
+body.dark th {
+    background: #2a2a2a;
+}
+
+body.dark td {
+    border-bottom: 1px solid #333;
+}
+
+/* 🔷 FORM STYLING */
+.form-group {
+    margin-bottom: 15px;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+/* 🔷 BUTTON */
+.btn {
+    width: 100%;
+    padding: 12px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+/* 🔷 MOBILE */
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
