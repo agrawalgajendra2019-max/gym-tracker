@@ -10,13 +10,19 @@
 
         <!-- 🔷 EXISTING EXERCISE -->
         <div class="form-group">
-            <label>Select Existing Exercise</label>
-            <select name="existing_exercise">
-                <option value="">-- Choose --</option>
+
+            <label>Search Exercise</label>
+
+            <input list="exercise-list"
+                    name="existing_exercise"
+                    placeholder="Start typing exercise name...">
+
+            <datalist id="exercise-list">
                 {% for ex in exercises %}
-                    <option value="{{ ex.name }}">{{ ex.name }}</option>
+                <option value="{{ ex }}">
                 {% endfor %}
-            </select>
+            </datalist>
+
         </div>
 
         <!-- 🔷 NEW EXERCISE -->

@@ -20,6 +20,65 @@ from services.analytics import (
     get_previous_weight,
     calculate_improvement
 )
+import csv
+from io import TextIOWrapper
+
+
+STANDARD_EXERCISES = {
+
+    "chest": [
+        "bench press", "incline bench press", "decline bench press",
+        "dumbbell bench press", "incline dumbbell press",
+        "chest fly", "cable crossover", "pec deck",
+        "push up", "incline push up", "decline push up",
+        "machine chest press", "smith machine bench press",
+        "single arm cable fly", "floor press"
+    ],
+
+    "back": [
+        "pull up", "chin up", "lat pulldown", "wide grip pulldown",
+        "barbell row", "dumbbell row", "t-bar row",
+        "seated cable row", "machine row",
+        "deadlift", "rack pull", "straight arm pulldown",
+        "reverse fly", "face pull"
+    ],
+
+    "shoulder": [
+        "overhead press", "dumbbell shoulder press",
+        "arnold press", "machine shoulder press",
+        "lateral raise", "cable lateral raise",
+        "front raise", "plate raise",
+        "rear delt fly", "reverse pec deck",
+        "face pull", "upright row"
+    ],
+
+    "biceps": [
+        "barbell curl", "ez bar curl", "dumbbell curl",
+        "alternating curl", "hammer curl",
+        "incline dumbbell curl", "concentration curl",
+        "preacher curl", "cable curl",
+        "reverse curl", "spider curl"
+    ],
+
+    "triceps": [
+        "tricep pushdown", "rope pushdown",
+        "overhead extension", "dumbbell overhead extension",
+        "skull crusher", "lying tricep extension",
+        "close grip bench press", "dips",
+        "bench dips", "kickbacks", "cable overhead extension"
+    ],
+
+    "legs": [
+        "squat", "front squat", "goblet squat",
+        "leg press", "hack squat",
+        "lunges", "walking lunges", "bulgarian split squat",
+        "leg curl", "lying leg curl", "seated leg curl",
+        "leg extension",
+        "romanian deadlift", "stiff leg deadlift",
+        "calf raise", "seated calf raise", "standing calf raise"
+    ]
+}
+
 
 app = Flask(__name__)
 
@@ -119,12 +178,22 @@ def add_exercise(session_id):
 
         return redirect(url_for('add_sets', log_id=log.id))
 
+    # 🔥 GET STANDARD EXERCISES FOR THIS MUSCLE
+    standard = STANDARD_EXERCISES.get(session.muscle, [])
+
+    # 🔥 GET DATABASE EXERCISES
+    db_exercises = [ex.name for ex in exercises]
+
+    # 🔥 MERGE BOTH (REMOVE DUPLICATES)
+    all_exercises = list(set(standard + db_exercises))
+
     return render_template(
         'add_exercise.html',
-        exercises=exercises,
+        exercises=all_exercises,
         muscle=session.muscle,
         logs=logs
     )
+
 
 
 @app.route('/add_sets/<int:log_id>', methods=['GET', 'POST'])
@@ -310,6 +379,86 @@ def export_csv():
         mimetype='text/csv',
         headers={"Content-Disposition": "attachment;filename=workout_data.csv"}
     )
+
+
+@app.route('/import_csv', methods=['GET', 'POST'])
+def import_csv():
+
+    if request.method == 'POST':
+
+        file = request.files.get('file')
+
+        if not file:
+            return "No file uploaded"
+
+        stream = TextIOWrapper(file.stream, encoding='utf-8')
+        reader = csv.DictReader(stream)
+
+        session_map = {}  # (date, muscle) → session
+        exercise_map = {}  # exercise name → Exercise object
+
+        imported_count = 0
+
+        for row in reader:
+            date = row['Date']
+            muscle = row['Muscle'].strip().lower()
+            exercise_name = row['Exercise'].strip().lower()
+            weight = float(row['Weight'])
+            reps = int(row['Reps'])
+
+            # 🔷 SESSION
+            session_key = (date, muscle)
+
+            if session_key not in session_map:
+                session = WorkoutSession(date=date, muscle=muscle)
+                db.session.add(session)
+                db.session.flush()  # get id without commit
+                session_map[session_key] = session
+            else:
+                session = session_map[session_key]
+
+            # 🔷 EXERCISE
+            if exercise_name not in exercise_map:
+                exercise = Exercise.query.filter_by(name=exercise_name).first()
+                if not exercise:
+                    exercise = Exercise(name=exercise_name)
+                    db.session.add(exercise)
+                    db.session.flush()
+                exercise_map[exercise_name] = exercise
+            else:
+                exercise = exercise_map[exercise_name]
+
+            # 🔷 EXERCISE LOG (CHECK EXISTING)
+            log = ExerciseLog.query.filter_by(
+                session_id=session.id,
+                exercise_id=exercise.id
+            ).first()
+
+            if not log:
+                log = ExerciseLog(session_id=session.id, exercise_id=exercise.id)
+                db.session.add(log)
+                db.session.flush()
+
+            # 🔷 SET LOG
+            set_count = SetLog.query.filter_by(exercise_log_id=log.id).count()
+
+            new_set = SetLog(
+                exercise_log_id=log.id,
+                set_number=set_count + 1,
+                weight=weight,
+                reps=reps
+            )
+
+            db.session.add(new_set)
+
+            imported_count += 1
+
+        db.session.commit()
+
+        return f"✅ Imported {imported_count} rows successfully!"
+
+    return render_template('import_csv.html')
+
 
 # -------------------------
 # RUN
