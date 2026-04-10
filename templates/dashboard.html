@@ -15,6 +15,18 @@
 
         <form method="GET" class="filters">
 
+            <div style="margin-bottom:10px;">
+
+                <a href="/dashboard?date={{ current_date }}">
+                    <button type="button">Today</button>
+                </a>
+
+                <a href="/dashboard?week=1">
+                    <button type="button">This Week</button>
+                </a>
+
+            </div>
+
             <input type="text" name="muscle" placeholder="Muscle"
                    value="{{ request.args.get('muscle', '') }}">
 

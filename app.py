@@ -92,6 +92,8 @@ if DATABASE_URL:
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL or 'sqlite:///gym.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+print("DB:", app.config['SQLALCHEMY_DATABASE_URI'])
+
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     "pool_pre_ping": True,
 }
@@ -154,6 +156,15 @@ def add_exercise(session_id):
 
     exercises = Exercise.query.filter(~Exercise.id.in_(used_exercise_ids)).all()
 
+    # 🔥 RECENT EXERCISES (last 10 used)
+    recent_logs = ExerciseLog.query.order_by(ExerciseLog.id.desc()).limit(10).all()
+    recent_names = []
+
+    for log in recent_logs:
+        name = log.exercise.name
+        if name not in recent_names:
+            recent_names.append(name)
+
     if request.method == 'POST':
         existing = request.form.get('existing_exercise')
         new = request.form.get('new_exercise')
@@ -185,7 +196,16 @@ def add_exercise(session_id):
     db_exercises = [ex.name for ex in exercises]
 
     # 🔥 MERGE BOTH (REMOVE DUPLICATES)
-    all_exercises = list(set(standard + db_exercises))
+    # 🔥 MERGE + PRIORITIZE RECENT
+    all_exercises = []
+
+    # recent first
+    all_exercises.extend(recent_names)
+
+    # then rest
+    for ex in (standard + db_exercises):
+        if ex not in all_exercises:
+            all_exercises.append(ex)
 
     return render_template(
         'add_exercise.html',
@@ -274,6 +294,12 @@ def dashboard():
     muscle = request.args.get('muscle')
     exercise = request.args.get('exercise')
     date = request.args.get('date')
+    week = request.args.get('week')
+
+    from datetime import datetime, timedelta
+
+    # 🔥 FIXED (you had syntax error here)
+    current_date = datetime.now().strftime("%Y-%m-%d")
 
     # 🔥 IMPORTANT: join ALL tables properly
     query = SetLog.query \
@@ -288,8 +314,16 @@ def dashboard():
     if exercise:
         query = query.filter(Exercise.name.ilike(f"%{exercise}%"))
 
+    # 🔥 FIX DATE FILTER (important)
     if date:
-        query = query.filter(WorkoutSession.date == date)
+        query = query.filter(WorkoutSession.date.like(f"{date}%"))
+
+    # 🔥 ADD WEEK FILTER
+    if week:
+        today = datetime.now()
+        week_ago = today - timedelta(days=7)
+
+        query = query.filter(WorkoutSession.date >= week_ago)
 
     logs = query.all()
     all_logs = SetLog.query.all()
@@ -322,9 +356,9 @@ def dashboard():
         'dashboard.html',
         logs=logs_with_data,
         total_volume=total_volume,
-        total_sets=total_sets
+        total_sets=total_sets,
+        current_date=current_date   # 🔥 IMPORTANT
     )
-
 
 
 import csv

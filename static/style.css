@@ -146,3 +146,29 @@ input, select {
         align-items: flex-start;
     }
 }
+
+/* 🔷 MOBILE IMPROVEMENTS */
+@media (max-width: 600px) {
+
+    .container {
+        padding: 10px;
+    }
+
+    table {
+        font-size: 12px;
+    }
+
+    th, td {
+        padding: 6px;
+    }
+
+    button {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .filters input {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+}
