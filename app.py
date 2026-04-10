@@ -460,6 +460,32 @@ def import_csv():
     return render_template('import_csv.html')
 
 
+
+@app.route('/delete_set/<int:set_id>')
+def delete_set(set_id):
+
+    set_log = SetLog.query.get_or_404(set_id)
+
+    db.session.delete(set_log)
+    db.session.commit()
+
+    return redirect(url_for('dashboard'))
+
+@app.route('/edit_set/<int:set_id>', methods=['GET', 'POST'])
+def edit_set(set_id):
+
+    set_log = SetLog.query.get_or_404(set_id)
+
+    if request.method == 'POST':
+        set_log.weight = float(request.form['weight'])
+        set_log.reps = int(request.form['reps'])
+
+        db.session.commit()
+
+        return redirect(url_for('dashboard'))
+
+    return render_template('edit_set.html', set_log=set_log)
+
 # -------------------------
 # RUN
 # -------------------------

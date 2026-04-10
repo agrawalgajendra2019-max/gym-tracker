@@ -64,6 +64,7 @@
                     <th>Weight (kg)</th>
                     <th>Reps</th>
                     <th>Improvement</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
 
@@ -97,6 +98,19 @@
                                 {% else %}
                                     -
                                 {% endif %}
+                            </td>
+
+                            <td>
+
+                                <a href="/edit_set/{{ log.id }}">
+                                    <button style="background:#ffc107; border:none; padding:5px;">✏️</button>
+                                </a>
+
+                                <a href="/delete_set/{{ log.id }}"
+                                    onclick="return confirm('Delete this set?')">
+                                    <button style="background:red; color:white; border:none; padding:5px;">❌</button>
+                                </a>
+
                             </td>
 
                         </tr>
